@@ -1,0 +1,74 @@
+version: '3'
+
+tasks:
+  default:
+    cmds:
+      - task --list --sort=none
+    silent: true
+
+  build:
+    desc: Build the crate and all targets
+    preconditions: &cargo
+      - sh: command -v cargo
+        msg: "cargo not found — install Rust from https://rustup.rs/"
+    cmds:
+      - cargo build --all-targets
+
+  test:
+    desc: Run unit, integration and doc tests (pass filters after --)
+    preconditions: *cargo
+    cmds:
+      - cargo test {{.CLI_ARGS}}
+
+  fmt:
+    desc: Format code
+    aliases: [format]
+    preconditions: *cargo
+    cmds:
+      - cargo fmt
+
+  lint:
+    desc: Run clippy, warnings as errors
+    preconditions: *cargo
+    cmds:
+      - cargo clippy --all-targets -- -D warnings
+
+  lint:fix:
+    desc: Apply clippy auto-fixes
+    aliases: [fix]
+    preconditions: *cargo
+    cmds:
+      - cargo clippy --all-targets --fix --allow-dirty --allow-staged
+
+  check:
+    desc: Static checks (format check + clippy)
+    preconditions: *cargo
+    cmds:
+      - cargo fmt --check
+      - task: lint
+
+  ci:
+    desc: Full CI sequence (check + test)
+    cmds:
+      - task: check
+      - task: test
+
+  docs:
+    desc: Build API docs
+    preconditions: *cargo
+    cmds:
+      - cargo doc --no-deps
+
+  docs:open:
+    desc: Build and open API docs
+    preconditions: *cargo
+    cmds:
+      - cargo doc --no-deps --open
+
+  clean:
+    desc: Remove build output
+    preconditions: *cargo
+    status:
+      - test ! -d target
+    cmds:
+      - cargo clean
