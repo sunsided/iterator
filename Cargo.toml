@@ -1,0 +1,17 @@
+[package]
+name = "iterator"
+version = "0.1.0"
+edition = "2024"
+description = "C#-style iterators with `yield` for stable Rust, compiled into an allocation-free state machine"
+readme = "README.md"
+repository = "https://github.com/sunsided/iterator"
+keywords = ["iterator", "yield", "generator", "state-machine", "proc-macro"]
+categories = ["rust-patterns"]
+
+[dependencies]
+proc-macro2 = "1"
+quote = "1"
+syn = { version = "2", features = ["full", "visit"] }
+
+[lib]
+proc-macro = true
